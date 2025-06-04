@@ -1,7 +1,7 @@
 sounddevice
 soundfile
 openai
-whisper
+openai-whisper
 streamlit
 python-docx
 
