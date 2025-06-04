@@ -6,3 +6,7 @@
 # Updates
 - 초기 코드 및 requirements.txt 추가
 - 실시간 스트리밍 및 UI 개선 완료
+- 의존성 미설치로 실시간 테스트 진행 불가
+
+# Error
+- 환경에 sounddevice, openai 등 라이브러리가 없어 실시간 전사 및 요약 테스트 실패
