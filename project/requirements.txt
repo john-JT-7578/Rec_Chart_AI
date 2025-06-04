@@ -1,0 +1,7 @@
+sounddevice
+soundfile
+openai
+openai-whisper
+streamlit
+python-docx
+
