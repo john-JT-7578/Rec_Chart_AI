@@ -1,6 +1,7 @@
 import time
 import threading
 import streamlit as st
+from streamlit.runtime.scriptrunner import add_script_run_ctx
 
 from audio import record_chunk
 from transcribe import transcribe_audio
@@ -48,6 +49,7 @@ with col1:
             st.session_state['running'] = True
             st.session_state['start_time'] = time.time()
             thread = threading.Thread(target=run_interview, daemon=True)
+            add_script_run_ctx(thread)
             st.session_state['thread'] = thread
             thread.start()
     else:

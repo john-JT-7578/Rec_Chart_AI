@@ -11,4 +11,8 @@
 
 # Error
 - 환경에 sounddevice, openai 등 라이브러리가 없어 실시간 전사 및 요약 테스트 실패
+- Streamlit 스레드 실행 시 `missing ScriptRunContext` 경고 발생
+
+# Solved
+- Streamlit 스레드에 `add_script_run_ctx` 사용하여 경고 해결
 - whisper 패키지 충돌로 실행 오류 발생 (해결: `openai-whisper`로 교체)
