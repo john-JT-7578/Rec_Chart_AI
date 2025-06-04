@@ -21,4 +21,3 @@
 # Solved
 - Streamlit 스레드에 `add_script_run_ctx` 사용하여 경고 해결
 - soundfile.write 오류 해결: `int(stream.samplerate)`로 변환해 저장
-
