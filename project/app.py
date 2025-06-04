@@ -1,6 +1,7 @@
 import time
 import threading
 import streamlit as st
+from streamlit.runtime.scriptrunner import add_script_run_ctx
 
 from audio import record_chunk
 from transcribe import transcribe_audio
@@ -26,19 +27,39 @@ status_placeholder = st.sidebar.empty()
 duration_placeholder = st.sidebar.empty()
 
 def run_interview():
-    st.session_state['status'] = 'Listening'
+    i = 0
     while st.session_state.get('running', False):
+        dots = '.' * ((i % 3) + 1)
+        status_txt = (
+            f"Listening{dots}" if st.session_state['lang'] == 'English' else f"녹음 중{dots}"
+        )
+        status_placeholder.write(
+            f"Status: {status_txt}" if st.session_state['lang'] == 'English' else f"상태: {status_txt}"
+        )
         path = record_chunk(duration=5)
         if path:
+            status_placeholder.write(
+                'Transcribing...' if st.session_state['lang'] == 'English' else '전사 중...'
+            )
             text = transcribe_audio(path)
             st.session_state['transcript'] += text + '\n'
+            status_placeholder.write(
+                'Summarizing...' if st.session_state['lang'] == 'English' else '요약 중...'
+            )
             st.session_state['summary'] = summarize(
                 st.session_state['transcript'], language=st.session_state['lang']
             )
+            elapsed = int(time.time() - st.session_state['start_time'])
+            duration_placeholder.write(
+                f"Duration: {elapsed}s" if st.session_state['lang'] == 'English' else f"경과 시간: {elapsed}초"
+            )
         else:
             st.session_state['running'] = False
-        time.sleep(0.1)
-    st.session_state['status'] = 'Idle'
+        i += 1
+    status_placeholder.write(
+        'Status: Waiting' if st.session_state['lang'] == 'English' else '상태: 대기 중'
+    )
+    duration_placeholder.write('')
 
 col1, col2 = st.columns(2)
 
@@ -48,6 +69,7 @@ with col1:
             st.session_state['running'] = True
             st.session_state['start_time'] = time.time()
             thread = threading.Thread(target=run_interview, daemon=True)
+            add_script_run_ctx(thread)
             st.session_state['thread'] = thread
             thread.start()
     else:
@@ -70,13 +92,9 @@ with export_col2:
         export_docx(st.session_state['summary'], 'summary.docx')
         st.success('Saved as summary.docx' if lang == 'English' else 'summary.docx로 저장되었습니다.')
 
-status = 'Listening' if st.session_state.get('running') else 'Idle'
-if st.session_state.get('lang') == '한국어':
-    status = '녹음 중' if st.session_state.get('running') else '대기 중'
-status_placeholder.write(f"Status: {status}" if lang == 'English' else f"상태: {status}")
-
-if st.session_state.get('running'):
-    elapsed = int(time.time() - st.session_state['start_time'])
-    duration_placeholder.write(f"Duration: {elapsed}s" if lang == 'English' else f"경과 시간: {elapsed}초")
-else:
-    duration_placeholder.write("")
+if not st.session_state.get('running'):
+    waiting = 'Waiting' if lang == 'English' else '대기 중'
+    status_placeholder.write(
+        f"Status: {waiting}" if lang == 'English' else f"상태: {waiting}"
+    )
+    duration_placeholder.write('')
