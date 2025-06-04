@@ -39,7 +39,9 @@ def stop_recording(stream, output_dir="recordings"):
         frames.append(audio_queue.get())
     if frames:
         data = np.concatenate(frames, axis=0)
-        sf.write(filename, data, samplerate=stream.samplerate)
+        # soundfile.write requires an integer sample rate. InputStream.samplerate
+        # may be a float, so convert explicitly to avoid TypeError.
+        sf.write(filename, data, int(stream.samplerate))
         return str(filename)
     return None
 
